@@ -2,6 +2,23 @@
 # 1. https://github.com/twilson63/cakefile-template/blob/master/Cakefile
 # 2. https://github.com/jashkenas/docco/blob/master/Cakefile
 
+# Requirements
+
+fs = require 'fs'
+path = require 'path'
+util = require 'util'
+{spawn, exec} = require 'child_process'
+
+try2require = (name) ->
+  try
+    lib = require name
+  catch e
+    error "module `#{name}` is required to do force clean."
+    error "use npm to install/link `#{name}`"
+    error 'Aborted!'
+    process.exit(1)
+  lib
+
 # Paths
 files = [
   'lib',
@@ -13,7 +30,13 @@ files = [
 jsInput = 'src'
 jsOutput = 'lib'
 docOutput = 'docs'
-path = 'path'
+
+for f in files
+  isExt = fs.exists f
+  unless isExt
+    mkdirp = try2require 'mkdirp'
+    mkdirp f
+
 
 # ANSI Terminal Colors
 bright = '\x1b[0;1m'
@@ -21,30 +44,25 @@ green = '\x1b[0;1;32m'
 reset = '\x1b[0m'
 red = '\x1b[0;1;31m'
 
-# Requirements
-fs = require 'fs'
-path = require 'path'
-util = require 'util'
-{spawn, exec} = require 'child_process'
 
 try
   which = require('which').sync
 catch err
   if process.platform.match(/^win/)?
-    console.log 'WARNING: the which module is required for windows\ntry: npm install which'
+    error 'the `which` module is required for windows\ntry: npm install which'
   which = null
 
 # Arguments
 option '-w', '--watch', 'continually build'
-option '-f', '--force', 'clean all files in output folder whatever they\'re compilation output or anything else'
+option '-f', '--force', 'clean all files in output folder whatever they\'re compilation outputs or anything else'
 option '-r', '--rebuild', 'do relative cleaning tasks before build js or generate documents'
 
 # Tasks
 task 'build', 'build coffee scripts into js', (options) -> build(options)
 task 'doc', 'generate documents', (options) -> doc(options)
-task 'clean:all', 'clean pervious built js files and documents', -> clean 'all'
-task 'clean:js', 'clean pervious built js files', -> clean 'js'
-task 'clean:doc', 'clean pervious built documents', -> clean 'doc'
+task 'clean:all', 'clean pervious built js files and documents', (options) -> clean 'all', options.force
+task 'clean:js', 'clean pervious built js files', (options) -> clean 'js', options.force
+task 'clean:doc', 'clean pervious built documents', (options) -> clean 'doc', options.force
 task 'test', 'do test', -> test()
 
 # Task Functions
@@ -67,13 +85,43 @@ doc = (options) ->
   catch e
     error 'cannot fild executable `docco`'
     return
-  docco = spawn doccoPath, ['-o', docOutput, path.normalize(jsInput.concat('/*.coffee'))]
+  test = path.normalize(jsInput.concat('/*.coffee'))
+  puts test
+  docco = spawn doccoPath, ['-o', docOutput, test]
   docco.stdout.on 'data', (data) -> puts data
   docco.stderr.on 'data', (data) -> error data
-  docco.on 'close', -> success 'building finished'
+  docco.on 'close', ->
+    fs.unlink '-p'
+    success 'building finished'
 
-clean = (target = 'all') ->
-
+clean = (target = 'all', isForce = false) ->
+  if isForce
+    rimraf = try2require 'rimraf'
+    if target is 'js' or 'all'
+      rimraf.sync jsOutput
+      fs.mkdir jsOutput
+    if target is 'doc' or 'all'
+      rimraf.sync docOutput
+      fs.mkdir docOutput
+    success 'OK, now anything in output folder has gone...'
+  else
+    fs.readdir jsInput, (e, files) ->
+      if e?
+        error e
+        return
+      else
+        for f in files
+          continue unless path.extname(f) is '.coffee'
+          if target is 'js' or 'all'
+            jp = path.join jsOutput, f.substring(0, path.basename(f).length - path.extname(f).length) + '.js'
+            fs.exists jp, (isExt) ->
+              puts "Deleting #{jp}"
+              if isExt then fs.unlink jp
+          if target is 'doc' or 'all'
+            dp = path.join docOutput, f.substring(0, path.basename(f).length - path.extname(f).length) + '.html'
+            fs.exists dp, (isExt) ->
+              puts "Deleting #{dp}"
+              if isExt then fs.unlink dp
 
 test = () ->
 
@@ -102,3 +150,5 @@ _output = (data, color, prefix) ->
     util.print bright
   util.puts data
   util.print reset
+
+_cleanFiles = () ->
