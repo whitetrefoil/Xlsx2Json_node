@@ -1,12 +1,25 @@
 {
-  "name": "Xlsx2Json_node",
-  "version": "0.0.1",
-  "description": "Convert between Excel (.xlsx only) and Json",
-  "main": "main.coffee",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": "https://github.com/whitetrefoil/Xlsx2Json_node.git",
-  "author": "whitetrefoil@gmail.com",
-  "license": "BSD"
+	"name":"Xlsx2Json_node",
+	"version":"0.0.1",
+	"description":"Convert between Excel (.xlsx only) and Json",
+	"keywords":[ "json", "xlsx", "xlsx", "convertor" ],
+	"repository":{
+		"type":"git",
+		"url":"https://github.com/whitetrefoil/Xlsx2Json_node.git"
+	},
+	"author":"WhiteTrefoil <whitetrefoil@gmail.com> (https://www.whitetrefoil.com)",
+	"license":"BSD",
+	"main":"./bin/xlsx2json",
+	"bin":{
+		"xlsx2json":"./bin/xlsx2json"
+	},
+	"directories":{
+		"lib":"./lib"
+	},
+	"scripts":{
+		"test":"coffee ./test/xlsx2json.coffee"
+	},
+	"engines":{
+		"node":">=0.8.8"
+	}
 }
