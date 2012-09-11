@@ -13,6 +13,7 @@ files = [
 jsInput = 'src'
 jsOutput = 'lib'
 docOutput = 'docs'
+path = 'path'
 
 # ANSI Terminal Colors
 bright = '\x1b[0;1m'
@@ -40,7 +41,7 @@ option '-r', '--rebuild', 'do relative cleaning tasks before build js or generat
 
 # Tasks
 task 'build', 'build coffee scripts into js', (options) -> build(options)
-task 'doc', 'generate documents', -> doc()
+task 'doc', 'generate documents', (options) -> doc(options)
 task 'clean:all', 'clean pervious built js files and documents', -> clean 'all'
 task 'clean:js', 'clean pervious built js files', -> clean 'js'
 task 'clean:doc', 'clean pervious built documents', -> clean 'doc'
@@ -59,8 +60,17 @@ build = (options) ->
   coffee.stderr.on 'data', (data) -> error data
   coffee.on 'close', -> success 'building finished'
 
-doc = () ->
-
+doc = (options) ->
+  clean 'doc' if options.rebuild
+  try
+    doccoPath = which 'docco'
+  catch e
+    error 'cannot fild executable `docco`'
+    return
+  docco = spawn doccoPath, ['-o', docOutput, path.normalize(jsInput.concat('/*.coffee'))]
+  docco.stdout.on 'data', (data) -> puts data
+  docco.stderr.on 'data', (data) -> error data
+  docco.on 'close', -> success 'building finished'
 
 clean = (target = 'all') ->
 
