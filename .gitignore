@@ -1,0 +1,34 @@
+############
+## Windows
+############
+
+# Windows image file caches
+Thumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Mac crap
+.DS_Store
+
+############
+## JetBrains
+############
+
+.idea
+.iws
+.ipr
+
+
+############
+## Sass
+############
+
+# Sass Cache
+.sass-cache
+
+############
+## docco?
+############
+
+-p/
