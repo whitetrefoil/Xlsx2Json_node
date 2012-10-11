@@ -8,7 +8,7 @@
 		"url":"https://github.com/whitetrefoil/Xlsx2Json_node.git"
 	},
 	"author":"WhiteTrefoil <whitetrefoil@gmail.com> (https://www.whitetrefoil.com)",
-	"license":"BSD",
+	"license":"MIT",
 	"main":"./bin/xlsx2json",
 	"bin":{
 		"xlsx2json":"./bin/xlsx2json"
@@ -16,8 +16,19 @@
 	"directories":{
 		"lib":"./lib"
 	},
+	"dependencies":{
+		"sax":"*"
+	},
+	"devDependencies":{
+		"mocha":"*",
+		"chai":"*",
+		"coffee-script":"*",
+		"docco":"*",
+		"rimraf":"*",
+		"which":"*"
+	},
 	"scripts":{
-		"test":"coffee ./test/xlsx2json.coffee"
+		"test":"mocha --compilers coffee:coffee-script"
 	},
 	"engines":{
 		"node":">=0.8.8"
