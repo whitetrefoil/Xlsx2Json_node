@@ -1,3 +1,9 @@
+#### Private functions
+
+##### cleanCache()
+
+
+
 #### Public functions
 
 ##### convert()
@@ -8,7 +14,7 @@ convert = (input, outputPath, callback) ->
   if typeof outputPath is 'function'
     callback = outputPath
     outputPath = null
-    _cleanCacheSync()
+    cleanCacheSync()
 
 
 # Map public functions

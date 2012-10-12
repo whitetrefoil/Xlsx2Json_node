@@ -151,4 +151,3 @@ _output = (data, color, prefix) ->
   util.puts data
   util.print reset
 
-_cleanFiles = () ->
